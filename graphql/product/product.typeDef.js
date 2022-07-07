@@ -2,12 +2,10 @@ export const typeDef = `
   type Product {
     id: ID!
     name: String!
-    imgUrl: String!
-    series: ID!
+    imgUrl: [String!]
+    series: String!
     description: String!
-    price: Int!
-    addon: AddOn
-    createdAt: Int!
-    updatedAt: Int
+    createdAt: String!
+    updatedAt: String
   }
 `;

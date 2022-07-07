@@ -3,17 +3,8 @@ const http = require('http');
 const { ApolloServerPluginDrainHttpServer } = require('apollo-server-core');
 const { ApolloServer, gql } = require('apollo-server-express');
 
-const typeDefs = gql`
-	type Query {
-		hello: String
-	}
-`;
-
-const resolvers = {
-	Query: {
-		hello: () => 'Hello world!',
-	},
-};
+const typeDefs = require('./graphql/typeDefs');
+const resolvers = require('./graphql/resolvers');
 
 const startApolloServer = async () => {
 	// Required logic for integrating with Express
@@ -22,8 +13,8 @@ const startApolloServer = async () => {
 
 	// Same ApolloServer initialization as before, plus the drain plugin.
 	const server = new ApolloServer({
-		typeDefs,
-		resolvers,
+		typeDefs: typeDefs,
+		resolvers: resolvers,
 		csrfPrevention: true,
 		cache: 'bounded',
 		plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],

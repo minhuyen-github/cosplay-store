@@ -1,6 +1,9 @@
 const { gql } = require('apollo-server-express');
+const Series = require('./series');
 
-const typeDefs = gql`
+/*const typeDefs = gql`
+	${Series.typeDef}
+
 	type Query {
 		orders: [Order!]
 		series: [Series!]
@@ -9,9 +12,7 @@ const typeDefs = gql`
 		order(id: ID!): Order
 	}
 
-	type Mutation {
-		addSeries(series: SeriesInput!): Series!
-		deleteSeries(id: ID!): Series!
+	"""type Mutation {
 		createAddOn(item: AddOnInput!): AddOn!
 		deleteAddOn(id: ID!): AddOn!
 		assignAddOnPrice(input: AddOnPriceInput!): AddOnPrice!
@@ -19,7 +20,7 @@ const typeDefs = gql`
 		updateOrder(id: ID!): Order!
 		addPayment(value: PaymentInput!): Payment!
 		updatePayment(id: ID!, status: PaymentStatus!): Payment!
-	}
+	}"""
 
 	enum OrderStatus {
 		SHIPPED
@@ -29,15 +30,15 @@ const typeDefs = gql`
 	}
 
 	enum PaymentStatus {
-    RECEIVED
-    PROCESSING
-    NONE
-  }
+		RECEIVED
+		PROCESSING
+		NONE
+	}
 
 	enum PaymentType {
-    TRANSFER
-    COD
-  }
+		TRANSFER
+		COD
+	}
 
 	input CustomerInput {
 		name: String!
@@ -47,14 +48,9 @@ const typeDefs = gql`
 
 	input ProductInput {
 		name: String!
-		imgUrl: String!
-		series: ID!
+		imgUrl: [String!]
+		seriesId: ID!
 		description: String!
-		price: Int!
-		addon: AddOn
-		status: 
-		createdAt: Int!
-		updatedAt: Int
 	}
 
 	input SeriesInput {
@@ -92,4 +88,18 @@ const typeDefs = gql`
 		type: PaymentType!
 		status: PaymentStatus!
 	}
+`;*/
+
+const typeDefs = gql`
+	${Series.typeDef}
+
+	type Query {
+		${Series.queries}
+	}
+
+	type Mutation {
+		${Series.mutations}
+	}
 `;
+
+module.exports = typeDefs;

@@ -1,0 +1,144 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model addon {
+  id         String    @id @unique(map: "addon_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String    @db.VarChar
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @db.Timestamptz(6)
+  style      style?
+}
+
+model customer {
+  id          String    @id @unique(map: "customer_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String    @db.VarChar
+  social_link String    @db.VarChar
+  phone       String    @db.VarChar
+  address     String    @db.VarChar
+  created_at  DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime? @db.Timestamptz(6)
+  order       order[]
+}
+
+model inventory {
+  style_id   String    @unique(map: "styleid") @db.Uuid
+  quantity   Int
+  id         String    @id @unique(map: "inventory_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @db.Timestamptz(6)
+}
+
+model order {
+  id          String       @id @unique(map: "order_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  customer_id String       @db.Uuid
+  payment_id  String       @unique(map: "paymentid") @db.Uuid
+  created_at  DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime?    @db.Timestamptz(6)
+  status      order_status
+  customer    customer     @relation(fields: [customer_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "customerId")
+  payment     payment      @relation(fields: [payment_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "paymentId")
+  order_item  order_item[]
+
+  @@index([customer_id], map: "fki_customerId")
+  @@index([payment_id], map: "fki_paymentId")
+}
+
+model order_item {
+  order_id        String    @db.Uuid
+  style_id        String    @unique(map: "product_style_id") @db.Uuid
+  quantity        Int
+  cost            Decimal   @db.Decimal
+  created_at      DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at      DateTime? @db.Timestamptz(6)
+  rent_start_date DateTime  @db.Date
+  rent_end_date   DateTime  @db.Date
+  order           order     @relation(fields: [order_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "orderId")
+  style           style     @relation(fields: [style_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "styleId")
+
+  @@id([order_id, style_id])
+  @@index([order_id], map: "fki_orderId")
+  @@index([style_id], map: "fki_styleId")
+}
+
+model payment {
+  id         String         @id @unique(map: "payment_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  type       payment_type
+  amount     Int
+  status     payment_status
+  created_at DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at DateTime?      @db.Timestamptz(6)
+  order      order?
+}
+
+model product {
+  id           String    @id @unique(map: "product_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String    @db.VarChar
+  description  String    @db.VarChar
+  item_include String[]  @db.VarChar
+  created_at   DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime? @db.Timestamptz(6)
+  series_id    String    @unique(map: "seriesid") @db.Uuid
+  img_url      String[]  @default([]) @db.VarChar
+  series       series    @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "seriesId")
+  style        style?
+
+  @@index([series_id], map: "fki_seriesId")
+}
+
+model product_size {
+  id         String    @id @unique(map: "size_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  size       String    @db.VarChar
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @db.Timestamptz(6)
+  style      style?
+}
+
+model series {
+  id         String    @id @unique(map: "series_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name       String    @db.VarChar
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime? @db.Timestamptz(6)
+  product    product?
+}
+
+model style {
+  product_id   String       @unique(map: "productid") @db.Uuid
+  add_on_id    String?      @unique(map: "addonid") @db.Uuid
+  size_id      String       @unique(map: "sizeid") @db.Uuid
+  price        Decimal      @db.Decimal
+  created_at   DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime?    @db.Timestamptz(6)
+  id           String       @id @unique(map: "style_id") @db.Uuid
+  addon        addon?       @relation(fields: [add_on_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "addOnId")
+  product      product      @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "productId")
+  product_size product_size @relation(fields: [size_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sizeId")
+  order_item   order_item?
+
+  @@index([add_on_id], map: "fki_addOnId")
+  @@index([product_id], map: "fki_productId")
+  @@index([size_id], map: "fki_sizeId")
+}
+
+enum order_status {
+  SHIPPED
+  CUSTOMER_RECEIVED
+  CUSTOMER_NOT_RECEIVED
+  RETURNED
+  NOT_RETURNED
+}
+
+enum payment_status {
+  PAID
+  NOT_PAID
+}
+
+enum payment_type {
+  BANK_TRANSFER
+  COD
+}
