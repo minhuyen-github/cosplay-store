@@ -29,13 +29,13 @@ model customer {
 model inventory {
   style_id   String    @unique(map: "styleid") @db.Uuid
   quantity   Int
-  id         String    @id @unique(map: "inventory_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   created_at DateTime  @default(now()) @db.Timestamptz(6)
   updated_at DateTime? @db.Timestamptz(6)
 }
 
 model order {
-  id          String       @id @unique(map: "order_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id          String       @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   customer_id String       @db.Uuid
   payment_id  String       @unique(map: "paymentid") @db.Uuid
   created_at  DateTime     @default(now()) @db.Timestamptz(6)
@@ -67,7 +67,7 @@ model order_item {
 }
 
 model payment {
-  id         String         @id @unique(map: "payment_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id         String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   type       payment_type
   amount     Int
   status     payment_status
@@ -77,13 +77,13 @@ model payment {
 }
 
 model product {
-  id           String    @id @unique(map: "product_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String    @db.VarChar
   description  String    @db.VarChar
-  item_include String[]  @db.VarChar
+  item_include String[]  @default([]) @db.VarChar
   created_at   DateTime  @default(now()) @db.Timestamptz(6)
   updated_at   DateTime? @db.Timestamptz(6)
-  series_id    String    @unique(map: "seriesid") @db.Uuid
+  series_id    String    @db.Uuid
   img_url      String[]  @default([]) @db.VarChar
   series       series    @relation(fields: [series_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "seriesId")
   style        style?
@@ -104,7 +104,7 @@ model series {
   name       String    @db.VarChar
   created_at DateTime  @default(now()) @db.Timestamptz(6)
   updated_at DateTime? @db.Timestamptz(6)
-  product    product?
+  product    product[]
 }
 
 model style {
@@ -114,7 +114,7 @@ model style {
   price        Decimal      @db.Decimal
   created_at   DateTime     @default(now()) @db.Timestamptz(6)
   updated_at   DateTime?    @db.Timestamptz(6)
-  id           String       @id @unique(map: "style_id") @db.Uuid
+  id           String       @id @db.Uuid
   addon        addon?       @relation(fields: [add_on_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "addOnId")
   product      product      @relation(fields: [product_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "productId")
   product_size product_size @relation(fields: [size_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sizeId")
