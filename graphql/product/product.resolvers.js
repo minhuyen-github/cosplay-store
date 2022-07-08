@@ -34,29 +34,48 @@ const resolvers = {
 					description: product.description,
 				},
 			});
-			delete created['series_id'];
 			const series = await prisma.series.findUnique({
 				where: {
 					id: created.series_id,
 				},
+				select: {
+					name: true,
+				},
 			});
+			delete created['series_id'];
 			const res = {
 				...created,
-				series: series,
+				series: series.name,
 			};
 			return res;
 		},
 
-		deleteProduct: (parent, args, context, info) => {
-			return prisma.product.delete({
+		deleteProduct: async (parent, args, context, info) => {
+			const deleted = await prisma.product.delete({
 				where: {
 					id: args.id,
 				},
 			});
+
+			const series = await prisma.series.findUnique({
+				where: {
+					id: deleted.series_id,
+				},
+				select: {
+					name: true,
+				},
+			});
+
+			delete deleted['series_id'];
+			const res = {
+				...deleted,
+				series: series.name,
+			};
+			return res;
 		},
 
-		updateProduct: (parent, args, context, info) => {
-			return prisma.product.update({
+		updateProduct: async (parent, args, context, info) => {
+			const updated = await prisma.product.update({
 				where: {
 					id: args.id,
 				},
@@ -64,6 +83,22 @@ const resolvers = {
 					[args.updateField]: args.updateData,
 				},
 			});
+
+			const series = await prisma.series.findUnique({
+				where: {
+					id: updated.series_id,
+				},
+				select: {
+					name: true,
+				},
+			});
+
+			delete updated['series_id'];
+			const res = {
+				...updated,
+				series: series.name,
+			};
+			return res;
 		},
 
 		addProductPhoto: async (parent, args, context, info) => {
