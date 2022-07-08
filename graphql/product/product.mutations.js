@@ -1,7 +1,9 @@
-export const mutations = `
-  type Mutation {
+const mutations = `
     addProduct(product: ProductInput!): Product!
+    addProductPhoto(id: ID!, imgLink: String!): [String!]
+    deleteProductPhoto(id: ID!, imgLink: String!): [String!]
 		deleteProduct(id: ID!): Product!
-    updateProduct(id: ID!, name: String, imgUrl: String, series: ID, description: String, price: Int, addOn: AddOn): Product!
-  }
+    updateProduct(id: ID!, updateField: String!, updateData: String!): Product!
 `;
+
+module.exports = mutations;

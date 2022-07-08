@@ -1,5 +1,6 @@
 const { gql } = require('apollo-server-express');
 const Series = require('./series');
+const Product = require('./product');
 
 /*const typeDefs = gql`
 	${Series.typeDef}
@@ -92,13 +93,23 @@ const Series = require('./series');
 
 const typeDefs = gql`
 	${Series.typeDef}
+	${Product.typeDef}
 
 	type Query {
 		${Series.queries}
+		${Product.queries}
 	}
 
 	type Mutation {
 		${Series.mutations}
+		${Product.mutations}
+	}
+
+	input ProductInput {
+		name: String!
+		seriesId: ID!
+		description: String!
+		itemInclude: [String!]
 	}
 `;
 
